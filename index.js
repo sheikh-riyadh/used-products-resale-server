@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 /* Middleware */
 app.use(cors())
-app.use(express())
+app.use(express.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.wjboujk.mongodb.net/?retryWrites=true&w=majority`;
@@ -34,12 +34,14 @@ const run = async () => {
             res.send(result)
         })
 
-
-        /* Inser user with user collection */
-        app.post('/users', async (req, res) => {
-            const user = req.body;
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+            res.send({ checkAdmin: user.userRole === 'admin' })
             console.log(user)
         })
+
     } finally {
 
     }
