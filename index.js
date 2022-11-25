@@ -11,17 +11,34 @@ app.use(express())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.wjboujk.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 const run = async () => {
     try {
         const categoriesCollection = client.db('carDealer').collection('categories')
+        const usersCollection = client.db('carDealer').collection('users')
+        const categoryProductsCollection = client.db('carDealer').collection('category-products')
 
+
+        /* Get categories data */
         app.get('/categories', async (req, res) => {
             const query = {}
             const result = await categoriesCollection.find(query).toArray()
             res.send(result)
+        })
+
+        app.get('/category-products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { categoryID: id }
+            const result = await categoryProductsCollection.find(query).toArray()
+            res.send(result)
+        })
+
+
+        /* Inser user with user collection */
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            console.log(user)
         })
     } finally {
 
