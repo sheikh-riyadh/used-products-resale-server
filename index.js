@@ -28,6 +28,7 @@ const run = async () => {
             res.send(result)
         })
 
+        /* Get single category products */
         app.get('/category-products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { categoryID: id }
@@ -35,6 +36,21 @@ const run = async () => {
             res.send(result)
         })
 
+        /* Store users */
+        app.post('/user', async (req, res) => {
+            const user = req.body
+            const result = await usersCollection.insertOne(user)
+            res.send(result)
+        })
+
+
+        app.get('/orders', async (req, res) => {
+            const email = req.query.email
+            const filter = { buyerEmail: email }
+            const orders = await ordersCollection.find(filter).toArray()
+            res.send(orders)
+        })
+        /* Store users orders */
         app.post('/orders', async (req, res) => {
             const order = req.body
             const result = await ordersCollection.insertOne(order)
