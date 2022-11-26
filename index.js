@@ -34,14 +34,6 @@ const run = async () => {
             res.send(result)
         })
 
-        app.get('/users/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email }
-            const user = await usersCollection.findOne(query)
-            res.send({ checkAdmin: user.userRole === 'admin' })
-            console.log(user)
-        })
-
     } finally {
 
     }
