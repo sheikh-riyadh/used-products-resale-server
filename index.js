@@ -18,6 +18,7 @@ const run = async () => {
         const categoriesCollection = client.db('carDealer').collection('categories')
         const usersCollection = client.db('carDealer').collection('users')
         const categoryProductsCollection = client.db('carDealer').collection('category-products')
+        const ordersCollection = client.db('carDealer').collection('orders')
 
 
         /* Get categories data */
@@ -31,6 +32,12 @@ const run = async () => {
             const id = req.params.id;
             const query = { categoryID: id }
             const result = await categoryProductsCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        app.post('/orders', async (req, res) => {
+            const order = req.body
+            const result = await ordersCollection.insertOne(order)
             res.send(result)
         })
 
