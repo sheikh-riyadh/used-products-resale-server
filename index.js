@@ -36,8 +36,23 @@ const run = async () => {
             res.send(result)
         })
 
+
+        /* Get all buyers */
+
+        app.get('/users/buyers', async (req, res) => {
+            const query = { userRole: 'Buyer' }
+            const buyers = await usersCollection.find(query).toArray()
+            res.send(buyers)
+        })
+        /* Get all sellers */
+        app.get('/users/sellers', async (req, res) => {
+            const query = { userRole: 'Seller' }
+            const sellers = await usersCollection.find(query).toArray()
+            res.send(sellers)
+        })
+
         /* Store users */
-        app.post('/user', async (req, res) => {
+        app.post('/users', async (req, res) => {
             const user = req.body
             const result = await usersCollection.insertOne(user)
             res.send(result)
