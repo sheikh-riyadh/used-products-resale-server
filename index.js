@@ -149,6 +149,21 @@ const run = async () => {
             res.send(products)
         })
 
+        /* Make advertisement seller product */
+        app.put('/seller-products/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true }
+            updatedDoc = {
+                $set: {
+                    advertisement: 'true'
+                }
+            }
+
+            const result = await categoryProductsCollection.updateOne(filter, updatedDoc, options)
+            res.send(result)
+        })
+
 
         /* Get buyer  */
         app.get('/users/buyer/:email', async (req, res) => {
