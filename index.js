@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5000;
@@ -12,6 +13,24 @@ app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.wjboujk.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+
+const verifyJWT = (req, res, next) => {
+    const header = req.headers.authorization;
+    if (!header) {
+        res.status(401).send({ message: 'unauthorized access' })
+    }
+    const token = header.split(' ')[1]
+    jwt.verify(token, process.env.ACCESS_TOKEN, (error, decoded) => {
+        if (error) {
+            return res.status(403).send({ message: "forbidden" })
+        }
+
+        req.decoded = decoded
+        next()
+    })
+
+}
 
 const run = async () => {
     try {
@@ -51,6 +70,9 @@ const run = async () => {
             res.send(sellers)
         })
 
+
+
+
         /* Store users */
         app.post('/users', async (req, res) => {
             const user = req.body
@@ -58,9 +80,41 @@ const run = async () => {
             res.send(result)
         })
 
+        /* Get jwt access token */
+        app.get('/jwt', async (req, res) => {
+            const email = req.query.email;
+            const filter = { email: email }
+            const user = await usersCollection.findOne(filter)
+            if (!user) {
+                return res.status(401).send({ message: 'Unauthorized access' })
+            } else if (user) {
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
+                return res.send({ accessToken: token })
+            }
+        })
 
-        app.get('/orders', async (req, res) => {
+        app.put('/users/verify/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    userVerify: "true"
+                }
+            }
+
+            const result = await usersCollection.updateOne(filter, updateDoc, options)
+
+            res.send(result)
+        })
+
+
+        /* Before getting order we have verify access token */
+        app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email
+            if (!email === req.decoded.email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
             const filter = { buyerEmail: email }
             const orders = await ordersCollection.find(filter).toArray()
             res.send(orders)
