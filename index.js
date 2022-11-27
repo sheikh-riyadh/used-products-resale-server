@@ -139,6 +139,20 @@ const run = async () => {
                 return res.send({ seller: false })
             }
         })
+
+        /* Get buyer  */
+        app.get('/users/buyer/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email };
+            const user = await usersCollection.findOne(query)
+            if (user?.userRole === 'Buyer') {
+                return res.send({ buyer: true })
+            } else {
+                return res.send({ buyer: false })
+            }
+        })
+
+
         /* Before getting order we have verify access token */
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email
