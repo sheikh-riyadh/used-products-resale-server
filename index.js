@@ -40,6 +40,14 @@ const run = async () => {
         const ordersCollection = client.db('carDealer').collection('orders')
 
 
+
+        /* Save product to database */
+        app.post('/category', async (req, res) => {
+            const product = req.body;
+            const result = await categoryProductsCollection.insertOne(product)
+            res.send(result)
+        })
+
         /* Get categories data */
         app.get('/categories', async (req, res) => {
             const query = {}
@@ -57,7 +65,6 @@ const run = async () => {
 
 
         /* Get all buyers */
-
         app.get('/users/buyers', async (req, res) => {
             const query = { userRole: 'Buyer' }
             const buyers = await usersCollection.find(query).toArray()
@@ -69,11 +76,6 @@ const run = async () => {
             const sellers = await usersCollection.find(query).toArray()
             res.send(sellers)
         })
-
-
-
-
-
 
         /* Get jwt access token */
         app.get('/jwt', async (req, res) => {
@@ -92,7 +94,6 @@ const run = async () => {
         app.put('/users', async (req, res) => {
             const user = req.body
             const filter = { email: user?.email }
-
             const options = { upsert: true };
             const updateDoc = {
                 $set: user
@@ -139,6 +140,15 @@ const run = async () => {
                 return res.send({ seller: false })
             }
         })
+
+        /* Get seller products */
+        app.get('/seller-products/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const products = await categoryProductsCollection.find(query).toArray()
+            res.send(products)
+        })
+
 
         /* Get buyer  */
         app.get('/users/buyer/:email', async (req, res) => {
