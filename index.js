@@ -73,12 +73,7 @@ const run = async () => {
 
 
 
-        /* Store users */
-        app.post('/users', async (req, res) => {
-            const user = req.body
-            const result = await usersCollection.insertOne(user)
-            res.send(result)
-        })
+
 
         /* Get jwt access token */
         app.get('/jwt', async (req, res) => {
@@ -88,9 +83,22 @@ const run = async () => {
             if (!user) {
                 return res.status(401).send({ message: 'Unauthorized access' })
             } else if (user) {
-                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '7d' })
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: "7d" })
                 return res.send({ accessToken: token })
             }
+        })
+
+        /* Store users */
+        app.put('/users', async (req, res) => {
+            const user = req.body
+            const filter = { email: user?.email }
+
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
         })
 
         app.put('/users/verify/:id', async (req, res) => {
@@ -106,6 +114,19 @@ const run = async () => {
             const result = await usersCollection.updateOne(filter, updateDoc, options)
 
             res.send(result)
+        })
+
+        /* Check admin */
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query)
+            if (user?.userRole === 'Admin') {
+                return res.send({ admin: true })
+            } else {
+                return res.send({ admin: false })
+            }
+
         })
 
 
