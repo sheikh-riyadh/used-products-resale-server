@@ -126,10 +126,19 @@ const run = async () => {
             } else {
                 return res.send({ admin: false })
             }
-
         })
 
-
+        /* Get seller */
+        app.get('/users/seller/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email };
+            const user = await usersCollection.findOne(query)
+            if (user?.userRole === 'Seller') {
+                return res.send({ seller: true })
+            } else {
+                return res.send({ seller: false })
+            }
+        })
         /* Before getting order we have verify access token */
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email
