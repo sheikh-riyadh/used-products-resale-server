@@ -171,6 +171,13 @@ const run = async () => {
             res.send(result)
         })
 
+        /* Get advertisment product from category product collection */
+        app.get('/advertisment', async (req, res) => {
+            const query = { advertisement: 'true' }
+            const advertisementProducts = await categoryProductsCollection.find(query).toArray()
+            res.send(advertisementProducts)
+        })
+
 
         /* Get buyer  */
         app.get('/users/buyer/:email', async (req, res) => {
