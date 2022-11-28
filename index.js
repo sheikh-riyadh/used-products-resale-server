@@ -56,9 +56,9 @@ const run = async () => {
         })
 
         /* Get single category products */
-        app.get('/category-products/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { categoryID: id }
+        app.get('/category-products/:categoryName', async (req, res) => {
+            const categoryName = req.params.categoryName;
+            const query = { categoryName: categoryName }
             const result = await categoryProductsCollection.find(query).toArray()
             res.send(result)
         })
@@ -99,6 +99,13 @@ const run = async () => {
                 $set: user
             }
             const result = await usersCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await usersCollection.deleteOne(query)
             res.send(result)
         })
 
